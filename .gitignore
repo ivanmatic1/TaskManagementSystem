@@ -1,14 +1,8 @@
-# Ignore build outputs
-bin/
-obj/
-.vscode/
-
-# Ignore user-specific files
+# Ignore Visual Studio files
+.vs/
 *.suo
 *.user
-*.userosscache
-*.sln.docstates
-
-# Ignore lock files
-project.lock.json
-
+*.userprefs
+*.sln.ide
+bin/
+obj/

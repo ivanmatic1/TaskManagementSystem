@@ -42,7 +42,7 @@ namespace TaskManagementSystem.Controllers
             if (!result.Succeeded)
                 return BadRequest(result.Errors);
 
-            return Ok(new { message = "Korisnik uspješno registriran." });
+            return Ok(new { message = "User has been registered." });
 
         }
 
@@ -50,11 +50,19 @@ namespace TaskManagementSystem.Controllers
 
         public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
-            var result = await _signInManager.PasswordSignInAsync(loginDto.Username, loginDto.Password, true, false);
-            if(!result.Succeeded)
-                return Unauthorized();
+            var user = await _userManager.FindByEmailAsync(loginDto.Email);
+            if (user == null)
+            {
+                return Unauthorized(); // Return 401 if user not found
+            }
 
-            var user = await _userManager.FindByNameAsync(loginDto.Username);
+            var result = await _signInManager.PasswordSignInAsync(user, loginDto.Password, true, false);
+            if (!result.Succeeded)
+            {
+                return Unauthorized(); // Return 401 if password is incorrect
+            }
+
+            // Generate JWT token if login is successful
             var token = GenerateJwtToken(user);
             return Ok(new { token });
         }
@@ -63,8 +71,8 @@ namespace TaskManagementSystem.Controllers
         {
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
