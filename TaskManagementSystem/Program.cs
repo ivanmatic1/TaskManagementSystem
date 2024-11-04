@@ -4,24 +4,20 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using TaskManagementSystem.Models;
+using TaskManagementSystem.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
-// Connection string
-
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Identity
-
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
-// Auth conf
-
+// Auth configuration
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",
@@ -33,7 +29,8 @@ builder.Services.AddCors(options =>
         });
 });
 
-builder.Services.AddAuthentication(options => 
+// JWT authentication
+builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -52,8 +49,10 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// Dependency injection
+builder.Services.AddScoped<IProjectService, ProjectService>();
+builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -70,6 +69,8 @@ app.UseCors("AllowAll");
 
 app.UseHttpsRedirection();
 
+// Make sure to use authentication before authorization
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
