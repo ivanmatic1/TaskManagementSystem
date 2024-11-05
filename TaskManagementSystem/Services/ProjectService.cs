@@ -14,12 +14,15 @@ namespace TaskManagementSystem.Services
             _context = context;
             _userManager = userManager;
         }
-
         public async Task<ProjectDto> CreateProjectAsync(CreateProjectDto createProjectDto, string userName)
         {
             var user = await _userManager.FindByNameAsync(userName);
             if (user == null)
                 throw new UnauthorizedAccessException("User not found.");
+
+            var members = await _context.Users
+                .Where(u => createProjectDto.AssignedUserIds.Contains(u.UserName)) 
+                .ToListAsync();
 
             var project = new Project
             {
@@ -27,19 +30,32 @@ namespace TaskManagementSystem.Services
                 Description = createProjectDto.Description,
                 StartDate = createProjectDto.StartDate,
                 EndDate = createProjectDto.EndDate,
-                Owner = user
+                Owner = user,
+                Members = members
             };
 
             _context.Projects.Add(project);
             await _context.SaveChangesAsync();
 
-            return new ProjectDto { Id = project.Id, Name = project.Name, Description = project.Description };
+            return new ProjectDto
+            {
+                Id = project.Id,
+                Name = project.Name,
+                Description = project.Description,
+                StartDate = project.StartDate,
+                EndDate = project.EndDate,
+                MemberIds = project.Members.Select(m => m.Id).ToList() 
+            };
         }
+
 
         public async Task<ProjectDto> UpdateProjectAsync(int id, UpdateProjectDto updateProjectDto, string userName)
         {
-            var project = await _context.Projects.Include(p => p.Owner)
+            var project = await _context.Projects
+                .Include(p => p.Owner)
+                .Include(p => p.Members)
                 .FirstOrDefaultAsync(p => p.Id == id && p.Owner.UserName == userName);
+
             if (project == null)
                 throw new UnauthorizedAccessException("Not allowed to update this project.");
 
@@ -48,10 +64,26 @@ namespace TaskManagementSystem.Services
             project.StartDate = updateProjectDto.StartDate;
             project.EndDate = updateProjectDto.EndDate;
 
+            var members = await _context.Users
+                .Where(u => updateProjectDto.AssignedUserIds.Contains(u.UserName))
+                .ToListAsync();
+
+            project.Members = members;
+
             await _context.SaveChangesAsync();
 
-            return new ProjectDto { Id = project.Id, Name = project.Name, Description = project.Description };
+            return new ProjectDto
+            {
+                Id = project.Id,
+                Name = project.Name,
+                Description = project.Description,
+                StartDate = project.StartDate,
+                EndDate = project.EndDate,
+                MemberIds = project.Members.Select(m => m.Id).ToList()
+            };
         }
+
+
 
         public async Task<bool> DeleteProjectAsync(int id, string userName)
         {
