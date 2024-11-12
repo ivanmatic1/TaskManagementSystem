@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace TaskManagementSystem.Models
 {
@@ -17,6 +19,6 @@ namespace TaskManagementSystem.Models
         [Required]
         public DateTime EndDate { get; set; }
 
-        public ICollection<string> AssignedUserIds { get; set; } = new List<string>();
+        public List<string> MemberEmails { get; set; } = new List<string>();
     }
 }

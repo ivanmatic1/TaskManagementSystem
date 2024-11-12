@@ -3,99 +3,157 @@ using Microsoft.AspNetCore.Mvc;
 using TaskManagementSystem.Models;
 using TaskManagementSystem.Services;
 
-[Authorize]
-[Route("api/[controller]")]
-[ApiController]
-public class ProjectsController : ControllerBase
+
+namespace TaskManagementSystem.Controllers
 {
-    private readonly IProjectService _projectService;
-
-    public ProjectsController(IProjectService projectService)
+    [Route("api/[controller]")]
+    [ApiController]
+    public class ProjectController : ControllerBase
     {
-        _projectService = projectService;
-    }
+        private readonly IProjectService _projectService;
 
-    [HttpPost("create")]
-    public async Task<IActionResult> CreateProject([FromBody] CreateProjectDto projectDto)
-    {
-        var userName = User.Identity.Name;
-        if (userName == null) return Unauthorized();
-
-        try
+        public ProjectController(IProjectService projectService)
         {
-            var project = await _projectService.CreateProjectAsync(projectDto, userName);
-            return Ok(project);
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return Unauthorized("User not authorized.");
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"An error occurred while creating the project: {ex.Message}");
-        }
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> GetUserProjects()
-    {
-        var userName = User.Identity.Name;
-        if (userName == null) return Unauthorized();
-
-        try
-        {
-            var projects = await _projectService.GetUserProjectsAsync(userName);
-            return Ok(projects);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"An error occurred while fetching projects: {ex.Message}");
-        }
-    }
-
-    [HttpPut("{projectId}")]
-    public async Task<IActionResult> UpdateProject(int projectId, [FromBody] UpdateProjectDto projectDto)
-    {
-        var userName = User.Identity.Name;
-
-        if (userName == null)
-        {
-            return Unauthorized();
+            _projectService = projectService;
         }
 
-        try
+        [HttpPost("create")]
+        [Authorize]
+        public async Task<IActionResult> CreateProject([FromBody] CreateProjectDto createProjectDto)
         {
-            var updatedProject = await _projectService.UpdateProjectAsync(projectId, projectDto, userName);
-            return Ok(updatedProject);
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return Forbid();
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"An error occurred while updating the project: {ex.Message}");
-        }
-    }
+            string userName = User.Identity.Name;
 
-    [HttpDelete("{projectId}")]
-    public async Task<IActionResult> DeleteProject(int projectId)
-    {
-        var userName = User.Identity.Name;
-        if (userName == null) return Unauthorized();
+            try
+            {
+                var project = await _projectService.CreateProjectAsync(createProjectDto, userName);
+                return CreatedAtAction(nameof(GetProjectById), new { id = project.Id }, project);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
 
-        try
+        [HttpPut("update/{id}")]
+        [Authorize]
+        public async Task<IActionResult> UpdateProject(int id, [FromBody] UpdateProjectDto updateProjectDto)
         {
-            var result = await _projectService.DeleteProjectAsync(projectId, userName);
-            return result ? Ok() : Forbid();
+            string userName = User.Identity.Name;
+
+            try
+            {
+                var project = await _projectService.UpdateProjectAsync(id, updateProjectDto, userName);
+                return Ok(project);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
-        catch (Exception ex)
+
+        [HttpDelete("delete/{id}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteProject(int id)
         {
-            return StatusCode(500, $"An error occurred while deleting the project: {ex.Message}");
+            string userName = User.Identity.Name;
+
+            try
+            {
+                await _projectService.DeleteProjectAsync(id, userName);
+                return NoContent();
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
+
+        [HttpGet("getproject/{id}")]
+        [Authorize]
+        public async Task<IActionResult> GetProjectById(int id)
+        {
+            string userName = User.Identity.Name;
+
+            try
+            {
+                var project = await _projectService.GetProjectByIdAsync(id, userName);
+                return Ok(project);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("getprojects")]
+        [Authorize]
+        public async Task<IActionResult> GetUserProjects()
+        {
+            string userName = User.Identity.Name;
+
+            try
+            {
+                var projects = await _projectService.GetUserProjectsAsync(userName);
+                return Ok(projects);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("addmember/{projectId}")]
+        public async Task<IActionResult> AddMembersToProject(int projectId, [FromBody] List<string> memberEmails)
+        {
+            var userName = User.Identity.Name;
+            var result = await _projectService.AddMembersToProjectAsync(projectId, memberEmails, userName);
+            if (result)
+            {
+                return Ok();
+            }
+            return BadRequest("Failed to add members.");
+        }
+
+        [HttpDelete("removemember/{projectId}")]
+        public async Task<IActionResult> RemoveMembersFromProject(int projectId, [FromBody] List<string> memberEmails)
+        {
+            var userName = User.Identity.Name;
+            var result = await _projectService.RemoveMembersFromProjectAsync(projectId, memberEmails, userName);
+            if (result)
+            {
+                return Ok();
+            }
+            return BadRequest("Failed to remove members.");
+        }
+
+
     }
 }

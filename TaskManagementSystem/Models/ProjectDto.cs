@@ -1,4 +1,7 @@
-﻿namespace TaskManagementSystem.Models
+﻿using System;
+using System.Collections.Generic;
+
+namespace TaskManagementSystem.Models
 {
     public class ProjectDto
     {
@@ -7,6 +10,9 @@
         public string Description { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public List<string> MemberIds { get; set; }
+        public string OwnerId { get; set; }
+        public string OwnerName { get; set; }
+        public List<string> MemberIds { get; set; } = new List<string>(); 
     }
+
 }

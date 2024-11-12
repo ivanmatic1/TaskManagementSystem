@@ -18,11 +18,9 @@ namespace TaskManagementSystem.Models
 
         public bool IsCompleted { get; set; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow; // Set a default value
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public DateTime? DueDate { get; set; }
-
-        // Foreign key for Project
         public int ProjectId { get; set; }
 
         [ForeignKey("ProjectId")]

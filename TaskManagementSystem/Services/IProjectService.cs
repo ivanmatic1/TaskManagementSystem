@@ -1,5 +1,7 @@
-﻿using TaskManagementSystem.Models;
-
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using TaskManagementSystem.Models;
 
 namespace TaskManagementSystem.Services
 {
@@ -10,7 +12,7 @@ namespace TaskManagementSystem.Services
         Task<bool> DeleteProjectAsync(int id, string userName);
         Task<ProjectDto> GetProjectByIdAsync(int id, string userName);
         Task<IEnumerable<ProjectDto>> GetUserProjectsAsync(string userName);
+        Task<bool> AddMembersToProjectAsync(int projectId, List<string> memberEmails, string userName);
+        Task<bool> RemoveMembersFromProjectAsync(int projectId, List<string> memberEmails, string userName);
     }
-
-
 }

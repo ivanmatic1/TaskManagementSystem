@@ -16,12 +16,15 @@ namespace TaskManagementSystem.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IConfiguration _configuration;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public AuthController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration configuration)
+        public AuthController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration configuration, RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
+            _roleManager = roleManager;
+
         }
 
         [HttpPost("register")]
@@ -42,8 +45,14 @@ namespace TaskManagementSystem.Controllers
             if (!result.Succeeded)
                 return BadRequest(result.Errors);
 
-            return Ok(new { message = "User has been registered." });
+            if (!await _roleManager.RoleExistsAsync("User"))
+            {
+                await _roleManager.CreateAsync(new IdentityRole("User"));
+            }
 
+            await _userManager.AddToRoleAsync(user, "User");
+
+            return Ok(new { message = "User has been registered and assigned the User role." });
         }
 
         [HttpPost("login")]
@@ -53,29 +62,32 @@ namespace TaskManagementSystem.Controllers
             var user = await _userManager.FindByEmailAsync(loginDto.Email);
             if (user == null)
             {
-                return Unauthorized(); // Return 401 if user not found
+                return Unauthorized();
             }
 
             var result = await _signInManager.PasswordSignInAsync(user, loginDto.Password, true, false);
             if (!result.Succeeded)
             {
-                return Unauthorized(); // Return 401 if password is incorrect
+                return Unauthorized();
             }
 
-            // Generate JWT token if login is successful
-            var token = GenerateJwtToken(user);
+            var token = await GenerateJwtToken(user);
             return Ok(new { token });
         }
 
-        private string GenerateJwtToken(ApplicationUser user)
+        private async Task<string> GenerateJwtToken(ApplicationUser user)
         {
-            var claims = new[]
-            {
+            var roles = await _userManager.GetRolesAsync(user);
+
+            var claims = new List<Claim>
+    {
         new Claim(JwtRegisteredClaimNames.Sub, user.Email),
         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
         new Claim(ClaimTypes.NameIdentifier, user.Id),
-        new Claim(ClaimTypes.Name, user.UserName) 
+        new Claim(ClaimTypes.Name, user.UserName)
     };
+
+            claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -85,9 +97,11 @@ namespace TaskManagementSystem.Controllers
                 audience: _configuration["Jwt:Audience"],
                 claims: claims,
                 expires: DateTime.Now.AddDays(30),
-                signingCredentials: creds);
+                signingCredentials: creds
+            );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
     }
 }

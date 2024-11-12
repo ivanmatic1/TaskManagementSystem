@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TaskManagementSystem.Models;
 
@@ -11,9 +12,11 @@ using TaskManagementSystem.Models;
 namespace TaskManagementSystem.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241112122817_AddProjectMemberJoinTable")]
+    partial class AddProjectMemberJoinTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -170,21 +173,6 @@ namespace TaskManagementSystem.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("ProjectMembers", b =>
-                {
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("ProjectId", "UserId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("ProjectMembers");
-                });
-
             modelBuilder.Entity("TaskManagementSystem.Models.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
@@ -292,6 +280,21 @@ namespace TaskManagementSystem.Migrations
                     b.ToTable("Projects");
                 });
 
+            modelBuilder.Entity("TaskManagementSystem.Models.ProjectMember", b =>
+                {
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("ProjectId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ProjectMembers");
+                });
+
             modelBuilder.Entity("TaskManagementSystem.Models.ProjectTask", b =>
                 {
                     b.Property<int>("Id")
@@ -394,21 +397,6 @@ namespace TaskManagementSystem.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ProjectMembers", b =>
-                {
-                    b.HasOne("TaskManagementSystem.Models.Project", null)
-                        .WithMany()
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TaskManagementSystem.Models.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("TaskManagementSystem.Models.Project", b =>
                 {
                     b.HasOne("TaskManagementSystem.Models.ApplicationUser", "Owner")
@@ -418,6 +406,25 @@ namespace TaskManagementSystem.Migrations
                         .IsRequired();
 
                     b.Navigation("Owner");
+                });
+
+            modelBuilder.Entity("TaskManagementSystem.Models.ProjectMember", b =>
+                {
+                    b.HasOne("TaskManagementSystem.Models.Project", "Project")
+                        .WithMany()
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TaskManagementSystem.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("TaskManagementSystem.Models.ProjectTask", b =>

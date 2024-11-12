@@ -22,11 +22,18 @@ namespace TaskManagementSystem.Models
 
             modelBuilder.Entity<Project>()
                 .HasMany(p => p.Members)
-                .WithMany("Projects");
+                .WithMany(u => u.Projects)
+                .UsingEntity<Dictionary<string, object>>(
+                    "ProjectMembers", 
+                    j => j.HasOne<ApplicationUser>().WithMany().HasForeignKey("UserId"),
+                    j => j.HasOne<Project>().WithMany().HasForeignKey("ProjectId")
+                );
 
             modelBuilder.Entity<ProjectTask>()
                 .HasMany(t => t.AssignedUsers)
-                .WithMany("Tasks");
+                .WithMany(u => u.Tasks)
+                .UsingEntity(j => j.ToTable("TaskAssignments"));
         }
+
     }
 }

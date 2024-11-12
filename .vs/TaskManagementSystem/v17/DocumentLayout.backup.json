@@ -3,8 +3,12 @@
   "WorkspaceRootPath": "C:\\Users\\balka\\source\\repos\\TaskManagementSystem\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{61AD24EC-D688-4AD3-8BE1-AEFDBEB45938}|TaskManagementSystem\\TaskManagementSystem.csproj|c:\\users\\balka\\source\\repos\\taskmanagementsystem\\taskmanagementsystem\\services\\taskservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{61AD24EC-D688-4AD3-8BE1-AEFDBEB45938}|TaskManagementSystem\\TaskManagementSystem.csproj|solutionrelative:taskmanagementsystem\\services\\taskservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{61AD24EC-D688-4AD3-8BE1-AEFDBEB45938}|TaskManagementSystem\\TaskManagementSystem.csproj|c:\\users\\balka\\source\\repos\\taskmanagementsystem\\taskmanagementsystem\\services\\projectservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{61AD24EC-D688-4AD3-8BE1-AEFDBEB45938}|TaskManagementSystem\\TaskManagementSystem.csproj|solutionrelative:taskmanagementsystem\\services\\projectservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{61AD24EC-D688-4AD3-8BE1-AEFDBEB45938}|TaskManagementSystem\\TaskManagementSystem.csproj|c:\\users\\balka\\source\\repos\\taskmanagementsystem\\taskmanagementsystem\\models\\createprojectdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{61AD24EC-D688-4AD3-8BE1-AEFDBEB45938}|TaskManagementSystem\\TaskManagementSystem.csproj|solutionrelative:taskmanagementsystem\\models\\createprojectdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -14,19 +18,32 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "TaskService.cs",
-              "DocumentMoniker": "C:\\Users\\balka\\source\\repos\\TaskManagementSystem\\TaskManagementSystem\\Services\\TaskService.cs",
-              "RelativeDocumentMoniker": "TaskManagementSystem\\Services\\TaskService.cs",
-              "ToolTip": "C:\\Users\\balka\\source\\repos\\TaskManagementSystem\\TaskManagementSystem\\Services\\TaskService.cs",
-              "RelativeToolTip": "TaskManagementSystem\\Services\\TaskService.cs",
-              "ViewState": "AgIAABYAAAAAAAAAAAAkwCUAAAAjAAAAAAAAAA==",
+              "DocumentIndex": 1,
+              "Title": "CreateProjectDto.cs",
+              "DocumentMoniker": "C:\\Users\\balka\\source\\repos\\TaskManagementSystem\\TaskManagementSystem\\Models\\CreateProjectDto.cs",
+              "RelativeDocumentMoniker": "TaskManagementSystem\\Models\\CreateProjectDto.cs",
+              "ToolTip": "C:\\Users\\balka\\source\\repos\\TaskManagementSystem\\TaskManagementSystem\\Models\\CreateProjectDto.cs",
+              "RelativeToolTip": "TaskManagementSystem\\Models\\CreateProjectDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAoAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-05T17:46:06.043Z",
+              "WhenOpened": "2024-11-12T18:36:32.826Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "ProjectService.cs",
+              "DocumentMoniker": "C:\\Users\\balka\\source\\repos\\TaskManagementSystem\\TaskManagementSystem\\Services\\ProjectService.cs",
+              "RelativeDocumentMoniker": "TaskManagementSystem\\Services\\ProjectService.cs",
+              "ToolTip": "C:\\Users\\balka\\source\\repos\\TaskManagementSystem\\TaskManagementSystem\\Services\\ProjectService.cs",
+              "RelativeToolTip": "TaskManagementSystem\\Services\\ProjectService.cs",
+              "ViewState": "AgIAABkAAAAAAAAAAAAYwB8AAABAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-12T18:36:34.417Z",
               "EditorCaption": ""
             }
           ]

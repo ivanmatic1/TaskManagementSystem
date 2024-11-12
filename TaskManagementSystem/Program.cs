@@ -8,28 +8,13 @@ using TaskManagementSystem.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
-// Auth configuration
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll",
-        builder =>
-        {
-            builder.AllowAnyOrigin()
-                   .AllowAnyMethod()
-                   .AllowAnyHeader();
-        });
-});
-
-// JWT authentication
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -49,16 +34,60 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// Dependency injection
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
+builder.Services.AddScoped<IUserService, UserService>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", builder =>
+    {
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+    });
+});
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
+});
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+    var roleExist = await roleManager.RoleExistsAsync("Admin");
+    if (!roleExist)
+    {
+        await roleManager.CreateAsync(new IdentityRole("Admin"));
+    }
+
+    var adminUser = await userManager.FindByEmailAsync("admin@example.com");
+    if (adminUser == null)
+    {
+        var user = new ApplicationUser
+        {
+            UserName = "admin",
+            Email = "admin@example.com",
+            FirstName = "Admin",
+            LastName = "User"
+        };
+
+        var result = await userManager.CreateAsync(user, "Admin1234!");
+        if (result.Succeeded)
+        {
+            await userManager.AddToRoleAsync(user, "Admin");
+        }
+    }
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -69,7 +98,6 @@ app.UseCors("AllowAll");
 
 app.UseHttpsRedirection();
 
-// Make sure to use authentication before authorization
 app.UseAuthentication();
 app.UseAuthorization();
 

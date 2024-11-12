@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TaskManagementSystem.Models;
 
@@ -11,9 +12,11 @@ using TaskManagementSystem.Models;
 namespace TaskManagementSystem.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241112120351_UpdateProjectSchema2")]
+    partial class UpdateProjectSchema2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +24,21 @@ namespace TaskManagementSystem.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("ApplicationUserProject", b =>
+                {
+                    b.Property<string>("MembersId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("ProjectsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("MembersId", "ProjectsId");
+
+                    b.HasIndex("ProjectsId");
+
+                    b.ToTable("ApplicationUserProject");
+                });
 
             modelBuilder.Entity("ApplicationUserProjectTask", b =>
                 {
@@ -34,7 +52,7 @@ namespace TaskManagementSystem.Migrations
 
                     b.HasIndex("TasksId");
 
-                    b.ToTable("TaskAssignments", (string)null);
+                    b.ToTable("ApplicationUserProjectTask");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -168,21 +186,6 @@ namespace TaskManagementSystem.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
-                });
-
-            modelBuilder.Entity("ProjectMembers", b =>
-                {
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("ProjectId", "UserId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("ProjectMembers");
                 });
 
             modelBuilder.Entity("TaskManagementSystem.Models.ApplicationUser", b =>
@@ -328,6 +331,21 @@ namespace TaskManagementSystem.Migrations
                     b.ToTable("Tasks");
                 });
 
+            modelBuilder.Entity("ApplicationUserProject", b =>
+                {
+                    b.HasOne("TaskManagementSystem.Models.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("MembersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TaskManagementSystem.Models.Project", null)
+                        .WithMany()
+                        .HasForeignKey("ProjectsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("ApplicationUserProjectTask", b =>
                 {
                     b.HasOne("TaskManagementSystem.Models.ApplicationUser", null)
@@ -387,21 +405,6 @@ namespace TaskManagementSystem.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("TaskManagementSystem.Models.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("ProjectMembers", b =>
-                {
-                    b.HasOne("TaskManagementSystem.Models.Project", null)
-                        .WithMany()
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("TaskManagementSystem.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
