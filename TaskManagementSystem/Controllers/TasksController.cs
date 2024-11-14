@@ -139,5 +139,28 @@ namespace TaskManagementSystem.Controllers
                 return Unauthorized(new { message = ex.Message });
             }
         }
+        [HttpGet("user-tasks")]
+        public async Task<ActionResult<IEnumerable<ProjectTaskDto>>> GetUserTasks()
+        {
+            var userName = User.Identity.Name; 
+            if (string.IsNullOrEmpty(userName))
+            {
+                return Unauthorized("User is not authenticated.");
+            }
+
+            try
+            {
+                var tasks = await _taskService.GetUserTasksAsync(userName);
+                return Ok(tasks);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+            catch (System.Exception ex)
+            {
+                return StatusCode(500, "An error occurred: " + ex.Message);
+            }
+        }
     }
 }

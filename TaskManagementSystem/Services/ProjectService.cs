@@ -307,6 +307,51 @@ namespace TaskManagementSystem.Services
             await _context.SaveChangesAsync();
             return true;
         }
+        public async Task<List<UserListDto>> GetAllUsersInProjectAsync(int projectId, string userName)
+        {
+            var user = await _userManager.FindByNameAsync(userName);
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found.");
+            }
+
+            var isAdmin = await _userService.IsAdminAsync(userName);
+            var project = await _context.Projects
+                .Include(p => p.Members)
+                .Include(p => p.Owner)
+                .FirstOrDefaultAsync(p => p.Id == projectId);
+
+            if (project == null)
+            {
+                throw new KeyNotFoundException("Project not found.");
+            }
+
+            if (project.OwnerId != user.Id && !project.Members.Any(m => m.Id == user.Id) && !isAdmin)
+            {
+                throw new UnauthorizedAccessException("You are not authorized to view the users in this project.");
+            }
+
+            var users = new List<ApplicationUser> { project.Owner };
+            users.AddRange(project.Members);
+
+            // Create a DTO list
+            var userDtos = new List<UserListDto>();
+            foreach (var u in users.Distinct())
+            {
+                var roles = await _userManager.GetRolesAsync(u);
+
+                userDtos.Add(new UserListDto
+                {
+                    FirstName = u.FirstName,
+                    LastName = u.LastName,
+                    UserName = u.UserName,
+                    Email = u.Email,
+                    Roles = roles.ToList()
+                });
+            }
+
+            return userDtos;
+        }
 
     }
 }

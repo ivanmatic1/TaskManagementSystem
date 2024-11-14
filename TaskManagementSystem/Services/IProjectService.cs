@@ -14,5 +14,6 @@ namespace TaskManagementSystem.Services
         Task<IEnumerable<ProjectDto>> GetUserProjectsAsync(string userName);
         Task<bool> AddMembersToProjectAsync(int projectId, List<string> memberEmails, string userName);
         Task<bool> RemoveMembersFromProjectAsync(int projectId, List<string> memberEmails, string userName);
+        Task<List<UserListDto>> GetAllUsersInProjectAsync(int projectId, string userName);
     }
 }

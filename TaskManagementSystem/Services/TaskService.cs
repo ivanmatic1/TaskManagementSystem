@@ -218,6 +218,45 @@ public class TaskService : ITaskService
         return tasksForUser;
     }
 
+    public async Task<IEnumerable<ProjectTaskDto>> GetUserTasksAsync(string userName)
+    {
+        var user = await _userManager.FindByNameAsync(userName);
+        if (user == null)
+        {
+            throw new UnauthorizedAccessException("User not found.");
+        }
+
+        bool isAdmin = await _userService.IsAdminAsync(userName);
+
+        IEnumerable<ProjectTask> tasks;
+
+        if (isAdmin)
+        {
+            tasks = await _context.Tasks
+                .Include(t => t.Project)
+                .Include(t => t.AssignedUsers)
+                .ToListAsync();
+        }
+        else
+        {
+            tasks = await _context.Tasks
+                .Include(t => t.Project)
+                .Include(t => t.AssignedUsers)
+                .Where(t => t.Project.OwnerId == user.Id || t.AssignedUsers.Any(u => u.Id == user.Id))
+                .ToListAsync();
+        }
+
+        return tasks.Select(t => new ProjectTaskDto
+        {
+            Id = t.Id,
+            Name = t.Name,
+            Description = t.Description,
+            IsCompleted = t.IsCompleted,
+            DueDate = t.DueDate,
+            ProjectId = t.ProjectId,
+            AssignedUserIds = t.AssignedUsers.Select(u => u.UserName).ToList()
+        });
+    }
     public async Task<bool> AddMembersToTaskAsync(int taskId, List<string> memberEmails, string userName)
     {
         var user = await _userManager.FindByNameAsync(userName);

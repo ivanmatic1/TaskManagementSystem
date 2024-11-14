@@ -8,7 +8,7 @@ namespace TaskManagementSystem.Controllers
 {
     [Route("api/admin")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public class AdminController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -19,7 +19,7 @@ namespace TaskManagementSystem.Controllers
             _userService = userService;
             _userManager = userManager;
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpPost("assign-admin")]
         public async Task<IActionResult> AssignAdminRole([FromBody] AssignAdminRequest model)
         {
@@ -29,7 +29,7 @@ namespace TaskManagementSystem.Controllers
 
             return Ok(new { message = "User has been assigned the Admin role." });
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpPost("remove-admin")]
         public async Task<IActionResult> RemoveAdminRole([FromBody] AssignAdminRequest model)
         {
@@ -39,7 +39,7 @@ namespace TaskManagementSystem.Controllers
 
             return Ok(new { message = "Admin role has been removed from the user." });
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpDelete("remove-user")]
         public async Task<IActionResult> RemoveUser([FromBody] AssignAdminRequest model)
         {

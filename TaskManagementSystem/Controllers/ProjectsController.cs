@@ -131,6 +131,7 @@ namespace TaskManagementSystem.Controllers
         }
 
         [HttpPost("addmember/{projectId}")]
+        [Authorize]
         public async Task<IActionResult> AddMembersToProject(int projectId, [FromBody] List<string> memberEmails)
         {
             var userName = User.Identity.Name;
@@ -143,6 +144,7 @@ namespace TaskManagementSystem.Controllers
         }
 
         [HttpDelete("removemember/{projectId}")]
+        [Authorize]
         public async Task<IActionResult> RemoveMembersFromProject(int projectId, [FromBody] List<string> memberEmails)
         {
             var userName = User.Identity.Name;
@@ -152,6 +154,36 @@ namespace TaskManagementSystem.Controllers
                 return Ok();
             }
             return BadRequest("Failed to remove members.");
+        }
+
+        [HttpGet("{projectId}/users")]
+        [Authorize]
+        public async Task<ActionResult<List<UserListDto>>> GetAllUsersInProject(int projectId)
+        {
+            var userName = User.Identity.Name;
+
+            if (string.IsNullOrEmpty(userName))
+            {
+                return Unauthorized("User is not authenticated.");
+            }
+
+            try
+            {
+                var users = await _projectService.GetAllUsersInProjectAsync(projectId, userName);
+                return Ok(users);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (System.Exception ex)
+            {
+                return StatusCode(500, "An error occurred: " + ex.Message);
+            }
         }
 
 
