@@ -30,6 +30,17 @@ namespace TaskManagementSystem.Services
             return project != null;
         }
 
+        public async Task<bool> IsProjectOwnerByTaskIdAsync(int taskId, string userName)
+        {
+            var task = await _context.Tasks
+                .Include(t => t.Project) 
+                    .ThenInclude(p => p.Owner)
+                .FirstOrDefaultAsync(t => t.Id == taskId && t.Project.Owner.UserName == userName);
+
+            return task != null;
+        }
+
+
         public async Task<bool> IsProjectMemberAsync(int projectId, string userName)
         {
             var project = await _context.Projects
