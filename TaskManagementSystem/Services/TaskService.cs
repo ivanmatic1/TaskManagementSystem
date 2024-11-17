@@ -45,11 +45,11 @@ public class TaskService : ITaskService
         if (createTaskDto.AssignedUserIds != null && createTaskDto.AssignedUserIds.Any())
         {
             var assignedUsers = new List<ApplicationUser>();
-            foreach (var email in createTaskDto.AssignedUserIds)
+            foreach (var name in createTaskDto.AssignedUserIds)
             {
-                var user = await _userManager.FindByNameAsync(userName);
+                var user = await _userManager.FindByNameAsync(name);
                 if (user == null)
-                    throw new KeyNotFoundException($"User with email {userName} not found.");
+                    throw new KeyNotFoundException($"User with email {name} not found.");
                 assignedUsers.Add(user);
             }
 
