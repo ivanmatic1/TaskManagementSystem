@@ -6,6 +6,7 @@ namespace TaskManagementSystem.Services
     {
         Task<bool> IsAdminAsync(string userEmail);
         Task<bool> IsProjectOwnerAsync(int projectId, string userEmail);
+        Task<bool> IsProjectOwnerByTaskIdAsync(int taskId, string userEmail);
         Task<bool> IsProjectMemberAsync(int projectId, string userName);
         Task<bool> AssignAdminRoleAsync(string userEmail);
         Task<bool> RemoveAdminRoleAsync(string userEmail);

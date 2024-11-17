@@ -47,9 +47,9 @@ public class TaskService : ITaskService
             var assignedUsers = new List<ApplicationUser>();
             foreach (var email in createTaskDto.AssignedUserIds)
             {
-                var user = await _userManager.FindByEmailAsync(email);
+                var user = await _userManager.FindByNameAsync(userName);
                 if (user == null)
-                    throw new KeyNotFoundException($"User with email {email} not found.");
+                    throw new KeyNotFoundException($"User with email {userName} not found.");
                 assignedUsers.Add(user);
             }
 
@@ -96,9 +96,9 @@ public class TaskService : ITaskService
             var updatedAssignedUsers = new List<ApplicationUser>();
             foreach (var email in updateTaskDto.AssignedUserIds)
             {
-                var user = await _userManager.FindByEmailAsync(email);
+                var user = await _userManager.FindByNameAsync(userName);
                 if (user == null)
-                    throw new KeyNotFoundException($"User with email {email} not found.");
+                    throw new KeyNotFoundException($"User with name {userName} not found.");
                 updatedAssignedUsers.Add(user);
             }
 

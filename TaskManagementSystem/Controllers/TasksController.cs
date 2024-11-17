@@ -70,7 +70,7 @@ namespace TaskManagementSystem.Controllers
         public async Task<IActionResult> DeleteTask(int id)
         {
             var isAdmin = await _userService.IsAdminAsync(User.Identity.Name);
-            var isProjectOwner = await _userService.IsProjectOwnerAsync(id, User.Identity.Name);
+            var isProjectOwner = await _userService.IsProjectOwnerByTaskIdAsync(id, User.Identity.Name);
 
             if (!isAdmin && !isProjectOwner)
                 return Forbid();
